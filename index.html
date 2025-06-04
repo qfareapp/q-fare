@@ -24,33 +24,30 @@
   <div id="result">Scan a QR Code</div>
 
   <script>
-    function onScanSuccess(decodedText, decodedResult) {
-      document.getElementById('result').innerText = `Scanned: ${decodedText}`;
-
-      // ✅ Post message to React Native WebView
-      if (window.ReactNativeWebView) {
-        window.ReactNativeWebView.postMessage(decodedText);
-      }
-
-      // Optional: redirect if needed
-      // window.location.href = "/booking?qr=" + encodeURIComponent(decodedText);
-    }
-
-    function onScanFailure(error) {
-      // Optional: console.log(error);
-    }
-
+  async function startScanner() {
     const html5QrCode = new Html5Qrcode("reader");
-    html5QrCode.start(
-      { facingMode: "environment" },
-      {
-        fps: 10,
-        qrbox: { width: 250, height: 250 }
-      },
-      onScanSuccess,
-      onScanFailure
-    );
-  </script>
+
+    try {
+      await html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        (decodedText) => {
+          if (window.ReactNativeWebView) {
+            window.ReactNativeWebView.postMessage(decodedText);
+          }
+        },
+        (error) => {
+          // Optionally log errors
+        }
+      );
+    } catch (e) {
+      alert("Camera failed to start: " + e.message);
+    }
+  }
+
+  startScanner();
+</script>
+
 
 </body>
 </html>
